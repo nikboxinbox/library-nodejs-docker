@@ -1,85 +1,35 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 
-const Book = require("./models/Book");
-const formData = require("express-form-data");
+const loggerMiddleware = require("./middleware/logger");
+const errorMiddleware = require("./middleware/error");
+const internalServerErrorMiddleware = require("./middleware/internalServerError");
+
+const indexRouter = require("./routes/index");
+const booksRouter = require("./routes/books");
+
 const app = express();
-const router = express.Router();
-app.use("/", router); // Load the router module
-app.use(formData.parse());
 
-store = {
-  books: [],
-};
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+// app.use(loggerMiddleware);
+// благодаря express.static  можно получить файл, просто введя в строку  hthttp://localhost:3000/public-files/public/img/имя файла.расширение
 
-// create test data
-["book1", "book2", "book3"].map((book) => {
-  const title = book;
-  const description = "test";
-  const newBook = new Book(title, description);
-  store.books.push(newBook);
-});
-// Получить все книги
-router.get("/api/books", (req, res) => {
-  const { books } = store;
-  res.json(books);
-});
-// Получить книгу по **id**
-router.get("/api/books/:id", (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-  const idx = books.findIndex((book) => book.id === id);
-  if (idx !== -1) {
-    res.json(books[idx]);
-  } else {
-    res.status(404).json("book | not found");
-  }
-});
+app.use("/public-files", express.static(__dirname + "/public"));
+// Здесь ("/api/books")мы указываем общее начало для всех роутов которые описаны в routes/books . А в books уже индивидульные окончания на каждый запрос
+app.use("/api/books", booksRouter);
+app.use("/", indexRouter);
+app.use(errorMiddleware);
 
+app.use(internalServerErrorMiddleware);
 // Авторизация пользователя. TODO: сделать, пока просто заглушка
-router.post("/api/user/login", (req, res) => {
+app.post("/api/user/login", (req, res) => {
   res.status(201).json({ id: 1, mail: "test@mail.ru" });
 });
 
-// Создаём книгу
-router.post("/api/books", (req, res) => {
-  console.log("ASSS", req.body);
-  const { books } = store;
-  const { title, description } = req.body;
-  const newBook = new Book(title, description);
-  books.push(newBook);
-  res.status(201).json(newBook);
-});
-
-// Редактируем книгу по **id**
-router.put("/api/books/:id", (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-  const { title, description } = req.body;
-  const idx = books.findIndex((book) => book.id === id);
-  if (idx !== -1) {
-    books[idx] = {
-      ...books[idx],
-      title,
-      description,
-    };
-    res.json(books[idx]);
-  } else {
-    res.status(404).json("book | not found");
-  }
-});
-
-// Удалить книгу по **id**
-router.delete("/api/books/:id", (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-  const idx = books.findIndex((book) => book.id === id);
-  if (idx !== -1) {
-    books.splice(idx, 1);
-    res.json(true);
-  } else {
-    res.status(404).json("book | not found");
-  }
-});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running, go to http://localhost:${PORT}`);

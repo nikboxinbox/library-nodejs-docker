@@ -1,8 +1,8 @@
 const multer = require("multer");
-
+//TODO: для теста загрузки скачивания пока формат изображений
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    cb(null, "public/image");
+    cb(null, "public/img");
   },
   filename(req, file, cb) {
     cb(
