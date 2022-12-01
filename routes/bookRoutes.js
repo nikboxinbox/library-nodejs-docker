@@ -1,28 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
-const Book = require("../models/Book");
 const fileMiddleware = require("../middleware/file");
-// const formData = require("express-form-data");
-// const app = express();
-// app.use("/", router); // Load the router module
-// app.use(formData.parse());
-
-store = {
-  books: [],
-};
-
-// create test data
-["book1", "book2", "book3"].map((book) => {
-  const title = book;
-  const description = "test";
-  const newBook = new Book(title, description);
-  store.books.push(newBook);
-});
+const store = require("../store/bookStore");
+const Book = require("../models/Book");
 
 // Для теста обработчика ошибок
 router.get("/err", (req, res) => {
-  // console.log("ASSS_GET_ERROR_ROUTER");
   throw new Error("error msg");
 });
 
@@ -44,11 +28,18 @@ router.get("/:id", (req, res) => {
 });
 
 // Создаём книгу
-router.post("/", (req, res) => {
-  // console.log("ASSS", req.body);
+router.post("/", fileMiddleware.single("book-img"), (req, res) => {
   const { books } = store;
+  const { file } = req;
+
   const { title, description } = req.body;
-  const newBook = new Book(title, description);
+
+  const fileName = file.originalname;
+  const fileBook = file.path;
+  console.log("FUCK", fileBook);
+
+  const newBook = new Book(title, description, fileName, fileBook);
+
   books.push(newBook);
   res.status(201).json(newBook);
 });
@@ -84,17 +75,6 @@ router.delete("/:id", (req, res) => {
   }
 });
 
-// Загрузка файлов
-router.post("/upload-img", fileMiddleware.single("cover-img"), (req, res) => {
-  console.log("FUCKKK_UPLOAD");
-  if (req.file) {
-    const { path } = req.file;
-    console.log(path);
-    res.json(path);
-  } else {
-    res.json(null);
-  }
-});
 //TODO: пока для теста на скачивание изображение А верное именование и хранение файлов книг еще не реализовано
 router.get("/:id/download-img", (req, res) => {
   const { books } = store;
