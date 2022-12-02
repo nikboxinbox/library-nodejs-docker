@@ -1,7 +1,7 @@
 const uidGenerator = require("node-unique-id-generator");
 
 class Book {
-  constructor(
+  constructor({
     title = "",
     description = "",
     authors = "",
@@ -9,8 +9,8 @@ class Book {
     fileCover = "",
     fileName = "",
     id = uidGenerator.generateUniqueId(),
-    fileBook
-  ) {
+    fileBook = "",
+  }) {
     this.id = id;
     this.title = title;
     this.description = description;

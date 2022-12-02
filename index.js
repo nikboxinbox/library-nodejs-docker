@@ -12,14 +12,14 @@ const userRouter = require("./routes/user");
 
 const app = express();
 
-
-
 app.use(
   bodyParser.urlencoded({
     extended: true,
   })
 );
-app.use(loggerMiddleware);
+
+// app.use(loggerMiddleware);
+
 // благодаря express.static  можно получить файл, просто введя в строку  hthttp://localhost:3000/public-files/public/img/имя файла.расширение
 app.use("/public-files", express.static(__dirname + "/public"));
 app.use("/api/user", userRouter);

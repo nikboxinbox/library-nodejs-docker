@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-// Авторизация пользователя. TODO: сделать, пока просто заглушка
+// Авторизация пользователя. TODO:сделать, пока просто заглушка
 router.post("/login", (req, res) => {
-    res.status(201).json({ id: 1, mail: "test@mail.ru" });
-  });
+  res.status(201).json({ id: 1, mail: "test@mail.ru" });
+});
+
 module.exports = router;
