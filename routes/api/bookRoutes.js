@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
-const fileMiddleware = require("../middleware/file");
-const Book = require("../models/Book");
+const fileMiddleware = require("../../middleware/file");
+const Book = require("../../models/Book");
 
 const store = {
   books: [],
@@ -19,13 +19,15 @@ const store = {
   store.books.push(newBook);
 });
 
+// Для теста обработчика ошибок
+router.get("/err", (req, res) => {
+  throw new Error("error msg");
+});
+
 // Получить все книги
 router.get("/", (req, res) => {
   const { books } = store;
-  res.render("books/index", {
-    title: "Books",
-    books: books,
-  });
+  res.json(books);
 });
 
 // Получить книгу по **id**
@@ -36,11 +38,7 @@ router.get("/:id", (req, res) => {
   const idx = books.findIndex((book) => book.id === id);
 
   if (idx !== -1) {
-    res.render("books/view", {
-      title: "Book",
-      book: books[idx],
-    });
-    // res.json(books[idx]);
+    res.json(books[idx]);
   } else {
     res.status(404).json("book | not found");
   }
@@ -104,7 +102,7 @@ router.get("/:id/download-file", (req, res) => {
 
   if (book) {
     res.download(
-      __dirname + `/../${book.fileBook}`,
+      __dirname + `../../../${book.fileBook}`,
       `${book.fileName}`,
       (err) => {
         if (err) {
