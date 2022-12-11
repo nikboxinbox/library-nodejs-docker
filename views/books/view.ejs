@@ -1,4 +1,6 @@
-<h1><%= title %></h1>
-<p class="book__title">- <%= book.title %> [ <%= book.id %> ]</p>
-<p class="book__description">- <%= book.description %></p>
+<h3 class="book__title">- <%= book.title %></h3>
+<h4 class="book__description">- <%= book.description %></h4>
+<h4 class="book__id">[ <%= book.id %> ]</h4>
+<% if (book.fileBook) { %>
 <image class="book__fileBook" src="<%= book.fileBook %>"> </image>
+<% } %>

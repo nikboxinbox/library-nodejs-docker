@@ -1,4 +1,7 @@
 <h1><%= title %></h1>
 <% books.map((el,idx)=>{%>
-<p class="book__title">- <%= el.title %> [ <%= el.id %> ]</p>
+<p class="book__title">
+  - <%= el.title %> <%= el.description %> [ <%= el.id %> ]
+</p>
+
 <%})%>

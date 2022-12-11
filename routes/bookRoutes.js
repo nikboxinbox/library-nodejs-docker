@@ -18,6 +18,27 @@ const store = {
 
   store.books.push(newBook);
 });
+// Создаём книгу
+
+router.get("/create", (req, res) => {
+  res.render("books/create", {
+    title: "Create Book",
+    book: {},
+  });
+});
+
+router.post("/create", (req, res) => {
+  const { books } = store;
+  // const { file } = req;
+  const { title, description } = req.body;
+  // const fileName = file.originalname;
+  // const fileBook = file.path;
+
+  const newBook = new Book({ title, description });
+
+  books.push(newBook);
+  res.redirect("/books");
+});
 
 // Получить все книги
 router.get("/", (req, res) => {
@@ -28,16 +49,14 @@ router.get("/", (req, res) => {
   });
 });
 
-// Получить книгу по **id**
-router.get("/:id", (req, res) => {
+// Редактируем книгу по **id**
+router.get("/update/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
-
   const idx = books.findIndex((book) => book.id === id);
-
   if (idx !== -1) {
-    res.render("books/view", {
-      title: "Book",
+    res.render("books/update", {
+      title: "Update Book",
       book: books[idx],
     });
     // res.json(books[idx]);
@@ -46,23 +65,7 @@ router.get("/:id", (req, res) => {
   }
 });
 
-// Создаём книгу
-router.post("/", fileMiddleware.single("book-img"), (req, res) => {
-  const { books } = store;
-  const { file } = req;
-  const { title, description } = req.body;
-  const fileName = file.originalname;
-  const fileBook = file.path;
-
-  const newBook = new Book({ title, description, fileName, fileBook });
-
-  books.push(newBook);
-
-  res.status(201).json(newBook);
-});
-
-// Редактируем книгу по **id**
-router.put("/:id", (req, res) => {
+router.post("/update/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
   const { title, description } = req.body;
@@ -75,14 +78,14 @@ router.put("/:id", (req, res) => {
       title,
       description,
     };
-    res.json(books[idx]);
+    res.redirect("/books");
   } else {
     res.status(404).json("book | not found");
   }
 });
 
 // Удалить книгу по **id**
-router.delete("/:id", (req, res) => {
+router.post("/delete/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
 
@@ -90,29 +93,7 @@ router.delete("/:id", (req, res) => {
 
   if (idx !== -1) {
     books.splice(idx, 1);
-    res.json(true);
-  } else {
-    res.status(404).json("book | not found");
-  }
-});
-
-router.get("/:id/download-file", (req, res) => {
-  const { books } = store;
-  const { id } = req.params;
-
-  const book = books.find((book) => book.id === id);
-
-  if (book) {
-    res.download(
-      __dirname + `/../${book.fileBook}`,
-      `${book.fileName}`,
-      (err) => {
-        if (err) {
-          console.error("Error book file download", err);
-          res.status(404).json();
-        }
-      }
-    );
+    res.redirect("/books");
   } else {
     res.status(404).json("book | not found");
   }
