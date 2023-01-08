@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
+const request = require("request");
 const fileMiddleware = require("../middleware/file");
 const Book = require("../models/Book");
+const PORT = process.env.PORT || 3000;
 
 const store = {
   books: [],
@@ -17,8 +19,8 @@ const store = {
 
   store.books.push(newBook);
 });
-// Создаём книгу
 
+// Создаём книгу
 router.get("/create", (req, res) => {
   res.render("books/create", {
     title: "Create Book",
@@ -46,6 +48,44 @@ router.get("/", (req, res) => {
     title: "Books",
     books: books,
   });
+});
+
+// Получить книгу по **id**
+router.get("/:id", (req, res) => {
+  const { books } = store;
+  const { id } = req.params;
+
+  const idx = books.findIndex((book) => book.id === id);
+
+  if (idx !== -1) {
+    `POST /counter/:bookId/incr`;
+
+    //  request.post(
+    //     {
+    //       // url: 'http://example.com/api',
+    //       url: 'http://example.com/api',
+
+    //       form: {
+    //         login: 'login1',
+    //         password: 'password1',
+    //       },
+    //     },
+    //     (err, response, body) => {
+    //       if (err) return res.status(500).send({ message: err })
+
+    //       return res.send(body)
+    //     }
+    //   )
+
+    res.render("books/view", {
+      id: books[idx].id,
+      title: books[idx].title,
+      description: books[idx].description,
+      fileBook: books[idx].fileBook,
+    });
+  } else {
+    res.status(404).json("book | not found");
+  }
 });
 
 // Редактируем книгу по **id**
