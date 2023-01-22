@@ -54,35 +54,33 @@ router.get("/", (req, res) => {
 router.get("/:id", (req, res) => {
   const { books } = store;
   const { id } = req.params;
-
+  let counter = 0;
   const idx = books.findIndex((book) => book.id === id);
 
   if (idx !== -1) {
-    `POST /counter/:bookId/incr`;
-
-    //  request.post(
-    //     {
-    //       // url: 'http://example.com/api',
-    //       url: 'http://example.com/api',
-
-    //       form: {
-    //         login: 'login1',
-    //         password: 'password1',
-    //       },
-    //     },
-    //     (err, response, body) => {
-    //       if (err) return res.status(500).send({ message: err })
-
-    //       return res.send(body)
-    //     }
-    //   )
-
-    res.render("books/view", {
-      id: books[idx].id,
-      title: books[idx].title,
-      description: books[idx].description,
-      fileBook: books[idx].fileBook,
-    });
+    request
+      .post(
+        { url: `http://localhost:4000/counter/${id}/incr` },
+        (err, response, body) => {
+          if (err) return response.status(500).send({ message: err });
+        }
+      )
+      .on("response", (response) => {
+        request.get(
+          { url: `http://localhost:4000/counter/${id}` },
+          (err, r, body) => {
+            if (err) return r.status(500).send({ message: err });
+            counter = JSON.parse(body).counter;
+            res.render("books/view", {
+              id: books[idx].id,
+              title: books[idx].title,
+              description: books[idx].description,
+              fileBook: books[idx].fileBook,
+              counter: counter,
+            });
+          }
+        );
+      });
   } else {
     res.status(404).json("book | not found");
   }
