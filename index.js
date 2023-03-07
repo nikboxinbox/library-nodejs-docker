@@ -1,3 +1,4 @@
+const dotenv = require("dotenv");
 const express = require("express");
 const bodyParser = require("body-parser");
 const Book = require("./models/Book");
@@ -13,6 +14,9 @@ const booksRouter = require("./routes/bookRoutes");
 const userRouter = require("./routes/user");
 
 const app = express();
+
+dotenv.config();
+
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
@@ -35,19 +39,23 @@ app.use(internalServerErrorMiddleware);
 
 const PORT = process.env.PORT || 3000;
 const UserDB = process.env.DB_USERNAME || "root";
-const PasswordDB = process.env.DB_PAWORD || "qwerty12345";
+const PasswordDB = process.env.DB_PASSWORD || "example";
 const NameDB = process.env.DB_Name || "books";
-const HostDb = process.env.DB_HOST || "mongodb://localhost:27017/";
+const HostDb = process.env.DB_HOST || "mongodb://root:example@mongo:27017/";
 
 async function start() {
+  if (!process.env.LIBRARY_MONGO_CONNECTION_STRING) {
+    throw new Error(
+      'Need a variable "process.env.LIBRARY_MONGO_CONNECTION_STRING" to connect to the database'
+    );
+  }
   try {
-    await mongoose.connect(HostDb, {
-      user: UserDB,
-      pass: PasswordDB,
-      dbName: NameDB,
+    await mongoose.connect(process.env.LIBRARY_MONGO_CONNECTION_STRING, {
       useNewUrlParser: true,
-      useUnifiedTopology: true,
+      // useFindAndModify: false,
     });
+
+    // await mongoose.connect("mongodb://root:example@mongo:27017/");
 
     app.listen(PORT, () => {
       console.log(`Server is running, go to http://localhost:${PORT}`);
