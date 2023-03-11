@@ -66,38 +66,45 @@ router.get("/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(404).redirect("/404");
-  } // const idx = books.findIndex((book) => book.id === id);
+  }
+  // const idx = books.findIndex((book) => book.id === id);
+
+  // FIXME: res.render происходит раньше изменения счетчика
+  // if (idx !== -1) {
+  request
+    .post(
+      { url: `http://localhost:4000/counter/${id}/incr` },
+
+      (err, response, body) => {
+        if (err) return response.status(500).send({ message: err });
+        // return response.status(200).send("OK");
+      }
+    )
+    .on("response", (response) => {
+      request.get(
+        { url: `http://localhost:4000/counter/${id}` },
+        (err, res, body) => {
+          if (err) return r.status(500).send({ message: err });
+          const result = JSON.parse(body);
+
+          counter = result.counter;
+
+          // res.render("books/view", {
+          //   id: books[idx].id,
+          //   title: books[idx].title,
+          //   description: books[idx].description,
+          //   fileBook: books[idx].fileBook,
+          //   counter: counter,
+          // });
+        }
+      );
+    });
+
   res.render("books/view", {
-    id: book.id,
-    title: book.title,
-    description: book.description,
-    fileBook: book.fileBook,
+    book: book,
     counter: counter,
   });
-  // if (idx !== -1) {
-  //   request
-  //     .post(
-  //       { url: `http://localhost:4000/counter/${id}/incr` },
-  //       (err, response, body) => {
-  //         if (err) return response.status(500).send({ message: err });
-  //       }
-  //     )
-  //     .on("response", (response) => {
-  //       request.get(
-  //         { url: `http://localhost:4000/counter/${id}` },
-  //         (err, r, body) => {
-  //           if (err) return r.status(500).send({ message: err });
-  //           counter = JSON.parse(body).counter;
-  //           res.render("books/view", {
-  //             id: books[idx].id,
-  //             title: books[idx].title,
-  //             description: books[idx].description,
-  //             fileBook: books[idx].fileBook,
-  //             counter: counter,
-  //           });
-  //         }
-  //       );
-  //     });
+
   // } else {
   //   res.status(404).json("book | not found");
   // }
@@ -110,15 +117,14 @@ router.get("/update/:id", async (req, res) => {
   let book;
   try {
     book = await Book.findById(id);
-    console.log("ASSSSSSSSSSSSSSSSSSSSS", book);
   } catch (error) {
     console.error(error);
     res.status(404).redirect("/404");
   }
   res.render("books/update", {
-    // TODO: Дописать , передать в шаблон все данные книги по свойствам
     title: "Update Book",
     book: book,
+    counter: 0,
   });
   // const idx = books.findIndex((book) => book.id === id);
   // if (idx !== -1) {
@@ -132,38 +138,53 @@ router.get("/update/:id", async (req, res) => {
   // }
 });
 
-router.post("/update/:id", (req, res) => {
-  const { books } = store;
+router.post("/update/:id", async (req, res) => {
   const { id } = req.params;
   const { title, description } = req.body;
 
-  const idx = books.findIndex((book) => book.id === id);
-
-  if (idx !== -1) {
-    books[idx] = {
-      ...books[idx],
-      title,
-      description,
-    };
-    res.redirect("/books");
-  } else {
-    res.status(404).json("book | not found");
+  try {
+    await Book.findByIdAndUpdate(id, { title, description });
+  } catch (error) {
+    console.error(error);
+    res.status(404).redirect("/404");
   }
+  res.redirect(`/books/${id}`);
+  // const { books } = store;
+
+  // const idx = books.findIndex((book) => book.id === id);
+
+  // if (idx !== -1) {
+  //   books[idx] = {
+  //     ...books[idx],
+  //     title,
+  //     description,
+  //   };
+  //   res.redirect("/books");
+  // } else {
+  //   res.status(404).json("book | not found");
+  // }
 });
 
 // Удалить книгу по **id**
-router.post("/delete/:id", (req, res) => {
-  const { books } = store;
+router.post("/delete/:id", async (req, res) => {
   const { id } = req.params;
 
-  const idx = books.findIndex((book) => book.id === id);
-
-  if (idx !== -1) {
-    books.splice(idx, 1);
-    res.redirect("/books");
-  } else {
-    res.status(404).json("book | not found");
+  try {
+    await Book.deleteOne({ _id: id });
+  } catch (error) {
+    console.error(error);
+    res.status(404).redirect("/404");
   }
+  res.redirect(`/books`);
+
+  // const { books } = store;
+  // const idx = books.findIndex((book) => book.id === id);
+  // if (idx !== -1) {
+  //   books.splice(idx, 1);
+  //   res.redirect("/books");
+  // } else {
+  //   res.status(404).json("book | not found");
+  // }
 });
 
 module.exports = router;

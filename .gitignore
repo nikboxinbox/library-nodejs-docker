@@ -1,4 +1,5 @@
 /node_modules
-/counter/node_modules
 server.log
 .env
+/counter/node_modules
+/counter/counterStore.json
