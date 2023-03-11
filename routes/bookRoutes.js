@@ -71,34 +71,34 @@ router.get("/:id", async (req, res) => {
 
   // FIXME: res.render происходит раньше изменения счетчика
   // if (idx !== -1) {
-  request
-    .post(
-      { url: `http://localhost:4000/counter/${id}/incr` },
+  // request
+  //   .post(
+  //     { url: `http://localhost:4000/counter/${id}/incr` },
 
-      (err, response, body) => {
-        if (err) return response.status(500).send({ message: err });
-        // return response.status(200).send("OK");
-      }
-    )
-    .on("response", (response) => {
-      request.get(
-        { url: `http://localhost:4000/counter/${id}` },
-        (err, res, body) => {
-          if (err) return r.status(500).send({ message: err });
-          const result = JSON.parse(body);
+  //     (err, response, body) => {
+  //       if (err) return response.status(500).send({ message: err });
+  //       // return response.status(200).send("OK");
+  //     }
+  //   )
+  //   .on("response", (response) => {
+  //     request.get(
+  //       { url: `http://localhost:4000/counter/${id}` },
+  //       (err, res, body) => {
+  //         if (err) return r.status(500).send({ message: err });
+  //         const result = JSON.parse(body);
 
-          counter = result.counter;
+  //         counter = result.counter;
 
-          // res.render("books/view", {
-          //   id: books[idx].id,
-          //   title: books[idx].title,
-          //   description: books[idx].description,
-          //   fileBook: books[idx].fileBook,
-          //   counter: counter,
-          // });
-        }
-      );
-    });
+  //         // res.render("books/view", {
+  //         //   id: books[idx].id,
+  //         //   title: books[idx].title,
+  //         //   description: books[idx].description,
+  //         //   fileBook: books[idx].fileBook,
+  //         //   counter: counter,
+  //         // });
+  //       }
+  //     );
+  //   });
 
   res.render("books/view", {
     book: book,
