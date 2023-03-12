@@ -28,9 +28,8 @@ app.post("/counter/:id/incr", (req, res) => {
             if (err) console.log(err);
         });
     }
-    // counter = counter + 1;
-
     res.send("OK");
+    // counter = counter + 1;
 });
 
 app.get("/counter/:id/", (req, res) => {

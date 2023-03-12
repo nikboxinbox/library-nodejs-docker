@@ -3,22 +3,22 @@ const router = express.Router();
 const request = require("request");
 const fileMiddleware = require("../middleware/file");
 const Book = require("../models/book-schema");
-const PORT = process.env.PORT || 3000;
 
-const store = {
-  books: [],
-};
+
+// const store = {
+//   books: [],
+// };
 // create test data
-["book1", "book2", "book3"].map((book) => {
-  const title = book;
-  const description = "test";
-  const fileName = `${book}-file-name`;
-  const fileBook = `public/bookFiles/test_data/${book}.jpeg`;
+// ["book1", "book2", "book3"].map((book) => {
+//   const title = book;
+//   const description = "test";
+//   const fileName = `${book}-file-name`;
+//   const fileBook = `public/bookFiles/test_data/${book}.jpeg`;
 
-  const newBook = new Book({ title, description, fileName, fileBook });
+//   const newBook = new Book({ title, description, fileName, fileBook });
 
-  store.books.push(newBook);
-});
+//   store.books.push(newBook);
+// });
 
 // Создаём книгу
 router.get("/create", (req, res) => {
@@ -60,54 +60,34 @@ router.get("/:id", async (req, res) => {
   // const { books } = store;
   const { id } = req.params;
   let counter = 0;
-  let book;
-  try {
-    book = await Book.findById(id);
-  } catch (error) {
-    console.error(error);
-    res.status(404).redirect("/404");
-  }
   // const idx = books.findIndex((book) => book.id === id);
 
-  // FIXME: res.render происходит раньше изменения счетчика
-  // if (idx !== -1) {
-  // request
-  //   .post(
-  //     { url: `http://localhost:4000/counter/${id}/incr` },
+  const book = await Book.findById(id);
+  if (!book) res.status(404).json("book | not found");
 
-  //     (err, response, body) => {
-  //       if (err) return response.status(500).send({ message: err });
-  //       // return response.status(200).send("OK");
-  //     }
-  //   )
-  //   .on("response", (response) => {
-  //     request.get(
-  //       { url: `http://localhost:4000/counter/${id}` },
-  //       (err, res, body) => {
-  //         if (err) return r.status(500).send({ message: err });
-  //         const result = JSON.parse(body);
+  await request
+    .post(
+      { url: `http://localhost:4000/counter/${id}/incr` },
 
-  //         counter = result.counter;
-
-  //         // res.render("books/view", {
-  //         //   id: books[idx].id,
-  //         //   title: books[idx].title,
-  //         //   description: books[idx].description,
-  //         //   fileBook: books[idx].fileBook,
-  //         //   counter: counter,
-  //         // });
-  //       }
-  //     );
-  //   });
-
+      (err, response, body) => {
+        if (err) return response.status(500).send({ message: err });
+        // return response.status(200).send("OK");
+      }
+    )
+    .on("response", (response) => {
+      request.get(
+        { url: `http://localhost:4000/counter/${id}` },
+        (err, res, body) => {
+          if (err) return r.status(500).send({ message: err });
+          const result = JSON.parse(body);
+          counter = result.counter;
+        }
+      );
+    });
   res.render("books/view", {
     book: book,
     counter: counter,
   });
-
-  // } else {
-  //   res.status(404).json("book | not found");
-  // }
 });
 
 // Редактируем книгу по **id**
